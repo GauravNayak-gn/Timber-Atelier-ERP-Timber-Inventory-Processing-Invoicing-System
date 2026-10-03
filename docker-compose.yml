@@ -1,0 +1,14 @@
+services:
+  timber-erp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: timber-erp-app
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=file:../db/custom.db
+      - NODE_ENV=development
+    volumes:
+      - ./db:/app/db
+    restart: unless-stopped
