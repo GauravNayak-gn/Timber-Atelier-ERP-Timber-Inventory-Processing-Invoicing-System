@@ -1,0 +1,231 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Timber Atelier — light: warm parchment, espresso ink,
+   caramel/amber primary, walnut rail. NO blue / indigo anywhere.
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --radius: 0.75rem;
+  --background: oklch(0.973 0.011 85);
+  --foreground: oklch(0.245 0.028 47);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.245 0.028 47);
+  --popover: oklch(0.995 0.006 85);
+  --popover-foreground: oklch(0.245 0.028 47);
+  --primary: oklch(0.553 0.126 58);
+  --primary-foreground: oklch(0.985 0.013 85);
+  --secondary: oklch(0.947 0.015 80);
+  --secondary-foreground: oklch(0.33 0.032 50);
+  --muted: oklch(0.947 0.013 80);
+  --muted-foreground: oklch(0.478 0.021 60);
+  --accent: oklch(0.931 0.031 79);
+  --accent-foreground: oklch(0.31 0.045 55);
+  --destructive: oklch(0.55 0.2 22);
+  --border: oklch(0.896 0.015 78);
+  --input: oklch(0.878 0.016 78);
+  --ring: oklch(0.62 0.105 58);
+  --chart-1: oklch(0.553 0.126 58);
+  --chart-2: oklch(0.58 0.09 150);
+  --chart-3: oklch(0.42 0.045 55);
+  --chart-4: oklch(0.72 0.115 75);
+  --chart-5: oklch(0.33 0.03 50);
+  --sidebar: oklch(0.247 0.024 50);
+  --sidebar-foreground: oklch(0.93 0.013 80);
+  --sidebar-primary: oklch(0.72 0.125 72);
+  --sidebar-primary-foreground: oklch(0.2 0.03 50);
+  --sidebar-accent: oklch(0.318 0.028 55);
+  --sidebar-accent-foreground: oklch(0.95 0.015 82);
+  --sidebar-border: oklch(0.345 0.026 55);
+  --sidebar-ring: oklch(0.62 0.105 58);
+}
+
+.dark {
+  --background: oklch(0.172 0.014 45);
+  --foreground: oklch(0.926 0.013 80);
+  --card: oklch(0.213 0.017 46);
+  --card-foreground: oklch(0.926 0.013 80);
+  --popover: oklch(0.222 0.017 46);
+  --popover-foreground: oklch(0.926 0.013 80);
+  --primary: oklch(0.802 0.128 76);
+  --primary-foreground: oklch(0.21 0.032 50);
+  --secondary: oklch(0.272 0.02 50);
+  --secondary-foreground: oklch(0.9 0.012 80);
+  --muted: oklch(0.266 0.018 50);
+  --muted-foreground: oklch(0.672 0.02 70);
+  --accent: oklch(0.302 0.032 60);
+  --accent-foreground: oklch(0.93 0.015 80);
+  --destructive: oklch(0.66 0.19 22);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 14%);
+  --ring: oklch(0.802 0.128 76);
+  --chart-1: oklch(0.75 0.125 76);
+  --chart-2: oklch(0.7 0.1 150);
+  --chart-3: oklch(0.6 0.05 60);
+  --chart-4: oklch(0.8 0.1 85);
+  --chart-5: oklch(0.5 0.03 55);
+  --sidebar: oklch(0.148 0.012 45);
+  --sidebar-foreground: oklch(0.9 0.012 80);
+  --sidebar-primary: oklch(0.802 0.128 76);
+  --sidebar-primary-foreground: oklch(0.2 0.03 50);
+  --sidebar-accent: oklch(0.24 0.02 50);
+  --sidebar-accent-foreground: oklch(0.95 0.015 82);
+  --sidebar-border: oklch(1 0 0 / 8%);
+  --sidebar-ring: oklch(0.802 0.128 76);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply scroll-smooth;
+  }
+  body {
+    @apply bg-background text-foreground;
+    /* warm radial wash + faint paper grain */
+    background-image:
+      radial-gradient(1100px 700px at 88% -12%, oklch(0.9 0.05 75 / 0.55), transparent 62%),
+      radial-gradient(900px 600px at -10% 110%, oklch(0.92 0.04 70 / 0.4), transparent 55%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-attachment: fixed;
+  }
+  .dark body {
+    background-image:
+      radial-gradient(1100px 700px at 88% -12%, oklch(0.4 0.06 65 / 0.22), transparent 62%),
+      radial-gradient(900px 600px at -10% 110%, oklch(0.35 0.05 60 / 0.18), transparent 55%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 0.85  0 0 0 0 0.7  0 0 0 0.03 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  ::selection {
+    background: oklch(0.78 0.11 75 / 0.55);
+  }
+}
+
+/* ── Display typeface utility (Fraunces via next/font) ── */
+.font-display {
+  font-family: var(--font-display), "Fraunces", Georgia, "Times New Roman", serif;
+}
+
+/* ── Numeric styling helpers ── */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Elegant scrollbars ── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--muted-foreground) 35%, transparent) transparent;
+}
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--muted-foreground) 32%, transparent);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklab, var(--muted-foreground) 55%, transparent);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--foreground) 28%, transparent);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+/* ── Sticky-header scroll container for long tables ── */
+.tbl-scroll {
+  max-height: 560px;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.tbl-scroll [data-slot="table-container"] {
+  overflow: visible;
+}
+.tbl-scroll thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.tbl-scroll thead th {
+  background: var(--card);
+  box-shadow: 0 1px 0 var(--border);
+}
+
+/* ── Invoice print document ── */
+.invoice-print {
+  background: #ffffff;
+  color: #292524;
+}
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  .invoice-print,
+  .invoice-print * {
+    visibility: visible !important;
+  }
+  .invoice-print {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+}
