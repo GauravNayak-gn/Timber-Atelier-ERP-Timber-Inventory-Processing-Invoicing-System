@@ -1,0 +1,235 @@
+// Timber ERP — Prisma Schema
+// Double-entry stock ledger: stock is NEVER mutated without an InventoryTransaction record.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────── Partners ───────────────────────────
+
+model Supplier {
+  id            Int      @id @default(autoincrement())
+  companyName   String   @unique
+  contactPerson String?
+  phone         String?
+  email         String?
+  address       String?
+  gstNumber     String?
+  createdAt     DateTime @default(now())
+
+  payments SupplierPayment[]
+}
+
+model Customer {
+  id              Int      @id @default(autoincrement())
+  companyName     String   @unique
+  contactPerson   String?
+  phone           String?
+  email           String?
+  billingAddress  String?
+  shippingAddress String?
+  gstNumber       String?
+  createdAt       DateTime @default(now())
+
+  invoices Invoice[]
+}
+
+// ─────────────────────────── Inventory ───────────────────────────
+
+model RawMaterial {
+  id               Int      @id @default(autoincrement())
+  name             String
+  skuCode          String   @unique
+  category         String   @default("Timber")
+  unit             String   @default("CFT")
+  currentStock     Float    @default(0)
+  unitPurchaseRate Float    @default(0)
+  reorderThreshold Float    @default(100)
+  createdAt        DateTime @default(now())
+
+  batchInputs BatchInputItem[]
+}
+
+model FinishedProduct {
+  id             Int      @id @default(autoincrement())
+  name           String
+  skuCode        String   @unique
+  category       String   @default("Plank")
+  unit           String   @default("CFT")
+  sellingPrice   Float    @default(0)
+  taxRatePercent Float    @default(18)
+  currentStock   Float    @default(0)
+  reorderThreshold Float  @default(50)
+  createdAt      DateTime @default(now())
+
+  batchOutputs BatchOutputItem[]
+  invoiceItems InvoiceItem[]
+}
+
+// Append-only, immutable audit ledger
+model InventoryTransaction {
+  id             Int      @id @default(autoincrement())
+  timestamp      DateTime @default(now())
+  itemType       String // RAW_MATERIAL | FINISHED_PRODUCT
+  itemId         Int
+  itemName       String
+  referenceType  String // PURCHASE | PROCESSING_INPUT | PROCESSING_OUTPUT | SALE | INVOICE_CANCELLATION | ADJUSTMENT
+  referenceNumber String
+  lotNumber      String
+  stockIn        Float    @default(0)
+  stockOut       Float    @default(0)
+  balanceAfter   Float
+  unitRate       Float    @default(0)
+  supplierId     Int?
+  notes          String?
+  createdAt      DateTime @default(now())
+
+  @@index([itemType, itemId])
+  @@index([referenceType])
+  @@index([lotNumber])
+  @@index([timestamp])
+}
+
+// ─────────────────────────── Processing ───────────────────────────
+
+model ProcessingBatch {
+  id                 Int       @id @default(autoincrement())
+  batchNumber        String    @unique
+  processingDate     DateTime  @default(now())
+  notes              String?
+  wastePercentage    Float     @default(0)
+  totalInputQty      Float     @default(0)
+  totalOutputQty     Float     @default(0)
+  totalWasteQty      Float     @default(0)
+  status             String    @default("COMPLETED") // COMPLETED | CANCELLED
+  cancellationReason String?
+  cancelledAt        DateTime?
+  createdAt          DateTime  @default(now())
+
+  inputs  BatchInputItem[]
+  outputs BatchOutputItem[]
+}
+
+model BatchInputItem {
+  id               Int      @id @default(autoincrement())
+  batchId          Int
+  rawMaterialId    Int
+  lotNumber        String
+  quantityConsumed Float
+  unit             String   @default("CFT")
+
+  batch       ProcessingBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  rawMaterial RawMaterial     @relation(fields: [rawMaterialId], references: [id])
+
+  @@index([lotNumber])
+  @@index([batchId])
+}
+
+model BatchOutputItem {
+  id               Int      @id @default(autoincrement())
+  batchId          Int
+  productId        Int?
+  lotNumber        String
+  outputType       String // FINISHED | SECONDARY | WASTE
+  quantityProduced Float
+  unit             String   @default("CFT")
+
+  batch   ProcessingBatch  @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  product FinishedProduct? @relation(fields: [productId], references: [id])
+
+  @@index([lotNumber])
+  @@index([batchId])
+}
+
+// ─────────────────────────── Invoicing ───────────────────────────
+
+model Invoice {
+  id                  Int       @id @default(autoincrement())
+  invoiceNumber       String    @unique
+  customerId          Int
+  invoiceDate         DateTime  @default(now())
+  subtotal            Float     @default(0)
+  taxTotal            Float     @default(0)
+  grandTotal          Float     @default(0)
+  status              String    @default("CONFIRMED") // CONFIRMED | CANCELLED
+  paidAt              DateTime?
+  paidAmount          Float     @default(0) // cumulative payments received (partials allowed)
+  paymentMethod       String? // last payment: CASH | UPI | BANK_TRANSFER | CHEQUE
+  paymentNotes        String? // last payment reference (UTR, cheque no., remarks)
+  cancellationReason  String?
+  cancelledAt         DateTime?
+  createdAt           DateTime  @default(now())
+
+  customer Customer        @relation(fields: [customerId], references: [id])
+  items    InvoiceItem[]
+  payments InvoicePayment[]
+
+  @@index([invoiceDate])
+}
+
+/** Per-payment rows — a partial-paying invoice accrues one row per receipt.
+ *  Rows are never deleted: a mis-recorded receipt is voided (voidedAt stamped)
+ *  and excluded from paidAmount, keeping the receipt history auditable. */
+model InvoicePayment {
+  id        Int      @id @default(autoincrement())
+  invoiceId Int
+  amount    Float
+  method    String   @default("CASH") // CASH | UPI | BANK_TRANSFER | CHEQUE
+  notes     String? // reference (UTR, cheque no., remarks)
+  paidAt    DateTime @default(now())
+  createdAt DateTime @default(now())
+  // Void audit trail (nullable — active receipts have none)
+  voidedAt   DateTime?
+  voidReason String?
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+}
+
+model InvoiceItem {
+  id             Int    @id @default(autoincrement())
+  invoiceId      Int
+  productId      Int
+  lotNumber      String
+  quantity       Float
+  unitPrice      Float
+  taxRatePercent Float
+  taxAmount      Float
+  lineTotal      Float
+
+  invoice Invoice         @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  product FinishedProduct @relation(fields: [productId], references: [id])
+
+  @@index([lotNumber])
+  @@index([invoiceId])
+}
+
+/** Payables side: money WE pay to SUPPLIERS against a PO bill.
+ *  Bills are not stored — they are derived from the immutable PURCHASE
+ *  ledger rows (qty × unitRate grouped by referenceNumber = poNumber).
+ *  Payment rows mirror InvoicePayment semantics: append-only, mis-recorded
+ *  receipts are voided (voidedAt/voidReason stamped) never deleted. */
+model SupplierPayment {
+  id         Int      @id @default(autoincrement())
+  supplierId Int
+  poNumber   String // which PO bill this payment settles
+  amount     Float
+  method     String   @default("CASH") // CASH | UPI | BANK_TRANSFER | CHEQUE
+  notes      String? // reference (UTR, cheque no., remarks)
+  paidAt     DateTime @default(now())
+  createdAt  DateTime @default(now())
+  // Void audit trail (nullable — active receipts have none)
+  voidedAt   DateTime?
+  voidReason String?
+
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+
+  @@index([supplierId])
+  @@index([poNumber])
+}
